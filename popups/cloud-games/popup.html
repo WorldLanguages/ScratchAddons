@@ -16,7 +16,7 @@
         <span class="float-right">👤 {{ project.amt }}</span>
       </div>
       <div class="project-details" v-show="project.amt > 0 && project.extended">
-        <div class="username-list" >
+        <div class="username-list">
           <a v-for="user of project.users">{{ user }}</a>
         </div>
       </div>
