@@ -1,14 +1,13 @@
-
 const vue = new Vue({
   el: "body",
   data: {
     projects: [],
-    loaded: false
+    loaded: false,
   },
   computed: {
     projectsSorted() {
       return this.projects.sort((b, a) => a.amt - b.amt);
-    }
+    },
   },
   methods: {
     async setCloudDataForProject(projectObject) {
@@ -27,9 +26,11 @@ const vue = new Vue({
   async created() {
     const res = await fetch("https://api.scratch.mit.edu/studios/539952/projects/?limit=40");
     const projects = await res.json();
-    this.projects = projects.map(project => ({ title: project.title, id: project.id, amt: 0, users: [], extended: true })).reverse();
+    this.projects = projects
+      .map((project) => ({ title: project.title, id: project.id, amt: 0, users: [], extended: true }))
+      .reverse();
 
-    await Promise.all(this.projects.map(project => this.setCloudDataForProject(project)));
+    await Promise.all(this.projects.map((project) => this.setCloudDataForProject(project)));
     this.loaded = true;
-  }
+  },
 });
