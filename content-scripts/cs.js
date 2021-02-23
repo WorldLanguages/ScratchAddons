@@ -118,7 +118,7 @@ function onHeadAvailable({ globalState, l10njson, addonsWithUserscripts, usersty
   const contentScript = {
     globalState,
     l10njson,
-    addonsWithUserscripts
+    addonsWithUserscripts,
   };
   Comlink.expose(contentScript, Comlink.windowEndpoint(comlinkIframe1.contentWindow));
 
@@ -139,7 +139,10 @@ function onHeadAvailable({ globalState, l10njson, addonsWithUserscripts, usersty
   script.src = chrome.runtime.getURL("content-scripts/inject/module.js");
   document.head.appendChild(script);
 
-  script.addEventListener("load", () => _page_ = Comlink.wrap(Comlink.windowEndpoint(window, comlinkIframe2.contentWindow)));
+  script.addEventListener(
+    "load",
+    () => (_page_ = Comlink.wrap(Comlink.windowEndpoint(window, comlinkIframe2.contentWindow)))
+  );
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.newGlobalState) {
