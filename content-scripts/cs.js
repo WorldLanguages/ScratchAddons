@@ -4,7 +4,11 @@ try {
   throw "Scratch Addons: not first party iframe";
 }
 
+const _bg_ = Comlink.wrap(ComlinkExtension.createEndpoint(chrome.runtime.connect()));
+_bg_.test();
+
 const DOLLARS = ["$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9"];
+let _page_;
 
 const promisify = (callbackFn) => (...args) => new Promise((resolve) => callbackFn(...args, resolve));
 
@@ -105,15 +109,29 @@ function setCssVariables(addonSettings) {
 }
 
 function onHeadAvailable({ globalState, l10njson, addonsWithUserscripts, userstyleUrls, themes }) {
+  const comlinkIframe1 = document.createElement("iframe");
+  const comlinkIframe2 = document.createElement("iframe");
+  comlinkIframe1.id = "scratch-addons-comlink";
+  comlinkIframe2.id = "scratch-addons-comlink-2";
+  document.head.appendChild(comlinkIframe1);
+  document.head.appendChild(comlinkIframe2);
+  const contentScript = {
+    globalState,
+    l10njson,
+    addonsWithUserscripts
+  };
+  Comlink.expose(contentScript, Comlink.windowEndpoint(comlinkIframe1.contentWindow));
+
   setCssVariables(globalState.addonSettings);
   injectUserstylesAndThemes({ userstyleUrls, themes, isUpdate: false });
 
   const template = document.createElement("template");
   template.id = "scratch-addons";
+  // TODO: replace data-path with import.meta.url
   template.setAttribute("data-path", chrome.runtime.getURL(""));
-  template.setAttribute("data-userscripts", JSON.stringify(addonsWithUserscripts));
-  template.setAttribute("data-global-state", JSON.stringify(globalState));
-  template.setAttribute("data-l10njson", JSON.stringify(l10njson));
+  //template.setAttribute("data-userscripts", JSON.stringify(addonsWithUserscripts));
+  // template.setAttribute("data-global-state", JSON.stringify(globalState));
+  // template.setAttribute("data-l10njson", JSON.stringify(l10njson));
   document.head.appendChild(template);
 
   const script = document.createElement("script");
@@ -121,9 +139,12 @@ function onHeadAvailable({ globalState, l10njson, addonsWithUserscripts, usersty
   script.src = chrome.runtime.getURL("content-scripts/inject/module.js");
   document.head.appendChild(script);
 
+  script.addEventListener("load", () => _page_ = Comlink.wrap(Comlink.windowEndpoint(window, comlinkIframe2.contentWindow)));
+
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.newGlobalState) {
-      template.setAttribute("data-global-state", JSON.stringify(request.newGlobalState));
+      contentScript.globalState = request.newGlobalState;
+      _page_.triggerGlobalStateUpdate();
       setCssVariables(request.newGlobalState.addonSettings);
     } else if (request.fireEvent) {
       const eventDetails = JSON.stringify(request.fireEvent);

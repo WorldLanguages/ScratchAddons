@@ -1,42 +1,44 @@
 import runAddonUserscripts from "./run-userscript.js";
 import Localization from "./l10n.js";
+import * as Comlink from "../../libraries/comlink.mjs";
+
+const comlinkIframe1 = document.getElementById("scratch-addons-comlink");
+const comlinkIframe2 = document.getElementById("scratch-addons-comlink-2");
+const _cs_ = Comlink.wrap(Comlink.windowEndpoint(window, comlinkIframe1.contentWindow));
+const page = {
+  async triggerGlobalStateUpdate() {
+    window.scratchAddons.globalState = await _cs_.globalState;
+  }
+};
+Comlink.expose(page, Comlink.windowEndpoint(comlinkIframe2.contentWindow));
+
 
 const template = document.getElementById("scratch-addons");
-const getGlobalState = () => {
-  const returnValue = JSON.parse(template.getAttribute("data-global-state"));
-  template.removeAttribute("data-global-state");
-  return returnValue;
-};
 
-const getL10NURLs = () => {
-  const returnValue = JSON.parse(template.getAttribute("data-l10njson"));
-  template.removeAttribute("data-l10njson");
-  return returnValue;
-};
+(async () => {
+  const addons = await _cs_.addonsWithUserscripts;
 
-const addons = JSON.parse(template.getAttribute("data-userscripts"));
+  window.scratchAddons = {};
+  scratchAddons.classNames = { loaded: false };
+  scratchAddons.globalState = await _cs_.globalState;
+  scratchAddons.l10n = new Localization(await _cs_.l10njson);
+  scratchAddons.eventTargets = {
+    auth: [],
+    settings: [],
+    tab: [],
+  };
 
-window.scratchAddons = {};
-scratchAddons.globalState = getGlobalState();
-scratchAddons.l10n = new Localization(getL10NURLs());
-scratchAddons.eventTargets = {
-  auth: [],
-  settings: [],
-  tab: [],
-};
-scratchAddons.classNames = { loaded: false };
+  const pendingPromises = {};
+  pendingPromises.msgCount = [];
 
-const pendingPromises = {};
-pendingPromises.msgCount = [];
-
-scratchAddons.methods = {};
-scratchAddons.methods.getMsgCount = () => {
-  template.setAttribute(`data-request-msgcount__${Date.now()}`, "");
-  let promiseResolver;
-  const promise = new Promise((resolve) => (promiseResolver = resolve));
-  pendingPromises.msgCount.push(promiseResolver);
-  return promise;
-};
+  scratchAddons.methods = {};
+  scratchAddons.methods.getMsgCount = () => {
+    template.setAttribute(`data-request-msgcount__${Date.now()}`, "");
+    let promiseResolver;
+    const promise = new Promise((resolve) => (promiseResolver = resolve));
+    pendingPromises.msgCount.push(promiseResolver);
+    return promise;
+  };
 
 function bodyIsEditorClassCheck() {
   const pathname = location.pathname.toLowerCase();
@@ -85,8 +87,8 @@ const observer = new MutationObserver((mutationsList) => {
     }
     if (attrVal === null) return;
     const removeAttr = () => template.removeAttribute(attr);
-    if (attr === "data-global-state") scratchAddons.globalState = getGlobalState();
-    else if (attr === "data-msgcount") {
+    // if (attr === "data-global-state") scratchAddons.globalState = getGlobalState();
+    /*else*/ if (attr === "data-msgcount") {
       pendingPromises.msgCount.forEach((promiseResolver) => promiseResolver(attrVal));
       pendingPromises.msgCount = [];
       removeAttr();
@@ -166,3 +168,5 @@ else {
   });
   stylesObserver.observe(document.head, { childList: true });
 }
+
+})();
