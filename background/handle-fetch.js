@@ -14,24 +14,28 @@ fetch("https://scratch.mit.edu/site-api/messages/messages-clear/?sareferer", {
 
 chrome.declarativeNetRequest.updateDynamicRules({
   removeRuleIds: [1],
-  addRules: [{
-    id: 1,
-    priority: 1,
-    action: {
-      type: "modifyHeaders",
-      requestHeaders: [{
-        header: "Referer",
-        operation: "set",
-        value: "https://scratch.mit.edu/"
-      }]
+  addRules: [
+    {
+      id: 1,
+      priority: 1,
+      action: {
+        type: "modifyHeaders",
+        requestHeaders: [
+          {
+            header: "Referer",
+            operation: "set",
+            value: "https://scratch.mit.edu/",
+          },
+        ],
+      },
+      condition: {
+        // Only includes requests from the background
+        domains: [chrome.runtime.id],
+        urlFilter: `*sareferer`,
+        resourceTypes: ["xmlhttprequest"],
+      },
     },
-    condition: {
-      // Only includes requests from the background
-      domains: [chrome.runtime.id],
-      urlFilter: `*sareferer`,
-      resourceTypes: ["xmlhttprequest"]
-    }
-  }]
+  ],
 });
 
 /*
