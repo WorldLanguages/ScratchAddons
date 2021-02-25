@@ -1,3 +1,40 @@
+/*
+
+Example use:
+
+fetch("https://scratch.mit.edu/site-api/messages/messages-clear/?sareferer", {
+  "headers": {
+    "x-csrftoken": addon.auth.csrfToken,
+    "x-requested-with": "XMLHttpRequest",
+  },
+  "method": "POST",
+});
+
+*/
+
+chrome.declarativeNetRequest.updateDynamicRules({
+  removeRuleIds: [1],
+  addRules: [{
+    id: 1,
+    priority: 1,
+    action: {
+      type: "modifyHeaders",
+      requestHeaders: [{
+        header: "Referer",
+        operation: "set",
+        value: "https://scratch.mit.edu/"
+      }]
+    },
+    condition: {
+      // Only includes requests from the background
+      domains: [chrome.runtime.id],
+      urlFilter: `*sareferer`,
+      resourceTypes: ["xmlhttprequest"]
+    }
+  }]
+});
+
+/*
 const extraInfoSpec = ["blocking", "requestHeaders"];
 const extraInfoSpec2 = ["blocking", "responseHeaders"];
 if (Object.prototype.hasOwnProperty.call(chrome.webRequest.OnBeforeSendHeadersOptions, "EXTRA_HEADERS")) {
@@ -78,3 +115,4 @@ chrome.webRequest.onHeadersReceived.addListener(
   },
   extraInfoSpec2
 );
+*/
