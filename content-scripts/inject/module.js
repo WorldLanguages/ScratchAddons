@@ -210,18 +210,30 @@ window.addEventListener("popstate", () => {
 });
 
 function loadClasses() {
+  const linkHrefs = Array.from(document.querySelectorAll("link"))
+    .filter((l) => l.rel === "stylesheet" && new URL(l.href).origin === "https://scratch.mit.edu")
+    .map((l) => l.href);
+  const loadedStyleSheets = Array.from(document.styleSheets)
+    .filter((s) => s.href && new URL(s.href).origin === "https://scratch.mit.edu")
+    .map((s) => s.href);
+  if (linkHrefs.length !== loadedStyleSheets.length) {
+    setTimeout(loadClasses, 100);
+    return;
+  }
   scratchAddons.classNames.arr = [
     ...new Set(
       [...document.styleSheets]
         .filter(
-          (styleSheet) =>
-            !(
+          (styleSheet) => {
+            if (!styleSheet.ownerNode.tagName === "STYLE") return true;
+            else return !(
               styleSheet.ownerNode.textContent.startsWith(
                 "/* DO NOT EDIT\n@todo This file is copied from GUI and should be pulled out into a shared library."
               ) &&
               (styleSheet.ownerNode.textContent.includes("input_input-form") ||
                 styleSheet.ownerNode.textContent.includes("label_input-group_"))
             )
+          }
         )
         .map((e) => {
           try {
@@ -269,7 +281,7 @@ else {
   const stylesObserver = new MutationObserver((mutationsList) => {
     if (document.querySelector("title")) {
       stylesObserver.disconnect();
-      loadClasses();
+      setTimeout(loadClasses, 0);
     }
   });
   stylesObserver.observe(document.documentElement, { childList: true, subtree: true });
