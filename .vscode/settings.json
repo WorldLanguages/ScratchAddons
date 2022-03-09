@@ -16,9 +16,12 @@
     "addons/[0123456789abcdfghijklmnopqrstuvwxyz]*": true,
     "addons/[0123456789abcdefghijklmnopqrstuvwxyz][0123456789abcefghijklmnopqrstuvwxyz]*": true,
     "addons/[0123456789abcdefghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghjklmnopqrstuvwxyz]*": true,
+    "addons/[0123456789abcdefghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][-0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstvwxyz]*": true,
     ".github": true
   }
 
   // TODO: json schema
   // TODO: jsconfig
+  // TODO: there's too many addon folders. Opening a specific folder won't make these settings apply.
+  // We should provide a way to hide all addons except one, or make this apply when opening child folders.
 }
