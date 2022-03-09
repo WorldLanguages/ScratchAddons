@@ -1,0 +1,24 @@
+{
+  "explorer.experimental.fileNesting.enabled": true,
+  "explorer.experimental.fileNesting.expand": false,
+  "explorer.experimental.fileNesting.patterns": {
+    ".prettierignore": ".*, *.md"
+    // Can we put CODE_OF_CONDUCT inside .github?
+  },
+  "files.exclude": {
+    // Hide languages that don't start with "e",
+    "_locales/[abcdfghijklmnopqrstuvwxyz]*": true,
+    "addons-l10n/[abcdfghijklmnopqrstuvwxyz]*": true,
+    // Hide languages that don't end with "n"
+    "_locales/[abcdefghijklmnopqrstuvwxyz][abcdefghijklmopqrstuvwxyz]*": true,
+    "addons-l10n/[abcdefghijklmnopqrstuvwxyz][abcdefghijklmopqrstuvwxyz]*": true,
+
+    "addons/[0123456789abcdfghijklmnopqrstuvwxyz]*": true,
+    "addons/[0123456789abcdefghijklmnopqrstuvwxyz][0123456789abcefghijklmnopqrstuvwxyz]*": true,
+    "addons/[0123456789abcdefghijklmnopqrstuvwxyz][0123456789abcedfghijklmnopqrstuvwxyz][0123456789abcedfghjklmnopqrstuvwxyz]*": true,
+    ".github": true
+  }
+
+  // TODO: json schema
+  // TODO: jsconfig
+}
