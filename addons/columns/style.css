@@ -45,7 +45,7 @@
   top: var(--sa-add-extension-button-y);
   bottom: auto;
   margin-inline-start: 0.5rem;
-	@@ -52,49 +52,49 @@
+  @@ -52,49 +52,49 @@;
 }
 
 /* [dir] is for specificity to override editor-stage-left */
