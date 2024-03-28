@@ -26,7 +26,8 @@ const vue = new Vue({
   methods: {
     msg(message, ...params) {
       const now = Date.now() / 1000;
-      if (message === "extensionName" && now < 1712059200 && now > 1711886400) {
+      if (message === "extensionName") {
+        document.getElementById("logo").src = "../../images/icon-haddock.svg";
         return window.matchMedia("(prefers-reduced-motion)").matches ? "Scratch Haddocks 🐟🐟" : "Scratch Haddocks";
       }
       return chrome.i18n.getMessage(message, ...params);
